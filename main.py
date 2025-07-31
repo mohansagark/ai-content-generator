@@ -4,16 +4,12 @@ from fastapi import FastAPI, HTTPException, Request, status, Depends
 from pydantic import BaseModel, Field
 import openai
 
-
-
 load_dotenv()
 app = FastAPI()
-
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
 API_KEY = os.getenv("API_KEY")
-
 
 if not OPENAI_API_KEY:
     raise RuntimeError("OPENAI_API_KEY environment variable not set.")
@@ -21,6 +17,13 @@ if not API_KEY:
     raise RuntimeError("API_KEY environment variable not set.")
 
 openai.api_key = OPENAI_API_KEY
+
+class PromptBuildRequest(BaseModel):
+    scenario: str = Field(..., min_length=1)
+    context: str = Field(..., min_length=1)
+
+class PromptBuildResponse(BaseModel):
+    prompt: str
 
 class RewriteRequest(BaseModel):
     content: str = Field(..., min_length=1)
@@ -33,6 +36,16 @@ def verify_api_key(request: Request):
     api_key = request.headers.get("x-api-key")
     if api_key != API_KEY:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing API key")
+
+@app.post("/build-prompt", response_model=PromptBuildResponse)
+def build_prompt(request: PromptBuildRequest, _: None = Depends(verify_api_key)):
+    prompt = (
+        f"You are an expert AI assistant. Your task is to generate content based on the following scenario and context.\n\n"
+        f"Scenario: {request.scenario}\n"
+        f"Context: {request.context}\n\n"
+        f"Please generate a detailed, high-quality response that fits the scenario and context above."
+    )
+    return PromptBuildResponse(prompt=prompt)
 
 @app.post("/rewrite", response_model=RewriteResponse)
 def rewrite_content(request: RewriteRequest, _: None = Depends(verify_api_key)):
