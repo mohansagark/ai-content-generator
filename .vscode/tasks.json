@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run FastAPI Server",
+      "type": "shell",
+      "command": "uvicorn main:app --reload",
+      "args": [],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Install Requirements",
+      "type": "shell",
+      "command": "pip install -r requirements.txt",
+      "args": [],
+      "group": "build",
+      "problemMatcher": []
+    }
+  ]
+}
