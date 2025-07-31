@@ -35,7 +35,7 @@ A FastAPI-based utility exposing endpoints for AI-powered content rewriting and 
 3. **Run the server:**
 
    ```sh
-   uvicorn main:app --reload
+   uvicorn app.main:app --reload
    ```
 
 4. **Test the endpoints:**
